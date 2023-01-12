@@ -4,10 +4,10 @@
 namespace core\base\models;
 
 
-
-// класс для работы с базовой моделью
 use core\base\exceptions\DbException;
 
+
+// класс для работы с базовой моделью
 abstract class BaseModel extends BaseModelMethods
 {
 

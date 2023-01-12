@@ -299,3 +299,27 @@ Fault: 08-01-2023 11:38:27 - Ошибка в SQL запросе: INSERT INTO art
 file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
  In line48
 
+Fault: 10-01-2023 18:54:04 - Ошибка в SQL запросе: INSERT INTO articles (id,name,parent_id,menu_position,visible,keywords,content,date,datetime,alias) VALUE (NULL,'masa','0','1','1','Ключевики','',NOW(),NOW(),'masa') - 1452 Cannot add or update a child row: a foreign key constraint fails (`fitlent_online_store`.`articles`, CONSTRAINT `articles_teacher_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `teacher` (`id`))
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line48
+
+Fault: 12-01-2023 12:10:21 - Ошибка в SQL запросе: INSERT INTO articles (id,name,parent_id,menu_position,visible,keywords,content,date,datetime,alias) VALUE (NULL,'masamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasamasa','0','1','1','Ключевики','',NOW(),NOW(),'') - 1452 Cannot add or update a child row: a foreign key constraint fails (`fitlent_online_store`.`articles`, CONSTRAINT `articles_teacher_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `teacher` (`id`))
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line48
+
+Fault: 12-01-2023 13:10:52 - Ошибка в SQL запросе: INSERT INTO articles (name,parent_id,menu_position,visible,keywords,content,date,datetime,alias,img,gallery_img) VALUE ('df','0','1','1','','',NOW(),NOW(),'df','snimok-ekrana-1.png','[\"snimok-ekrana-3.png\",\"snimok-ekrana-13.png\",\"snimok-ekrana-23.png\"]') - 1366 Incorrect integer value: 'snimok-ekrana-1.png' for column 'img' at row 1
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line48
+
+Fault: 12-01-2023 13:11:09 - Ошибка в SQL запросе: INSERT INTO articles (name,parent_id,menu_position,visible,keywords,content,date,datetime,alias,img) VALUE ('Леон','0','1','1','','',NOW(),NOW(),'leon','snimok-ekrana-16.png') - 1366 Incorrect integer value: 'snimok-ekrana-16.png' for column 'img' at row 1
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line48
+
+Fault: 12-01-2023 13:11:17 - Ошибка в SQL запросе: INSERT INTO articles (name,parent_id,menu_position,visible,keywords,content,date,datetime,alias,img) VALUE ('Леон','1','1','1','','',NOW(),NOW(),'leon','snimok-ekrana-161a6b2c75.png') - 1366 Incorrect integer value: 'snimok-ekrana-161a6b2c75.png' for column 'img' at row 1
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line48
+
+Fault: 12-01-2023 13:15:43 - Ошибка в SQL запросе: INSERT INTO articles (name,parent_id,menu_position,visible,keywords,content,date,datetime,alias,img) VALUE ('Первое','0','1','1','','',NOW(),NOW(),'pervoe','snimok-ekrana-128005c811.png') - 1452 Cannot add or update a child row: a foreign key constraint fails (`fitlent_online_store`.`articles`, CONSTRAINT `articles_teacher_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `teacher` (`id`))
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line48
+

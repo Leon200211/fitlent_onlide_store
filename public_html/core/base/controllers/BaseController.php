@@ -7,9 +7,11 @@ use core\base\exceptions\RouteException;
 use core\base\settings\Settings;
 
 
+// класс базового контроллера, от него будут наследоваться все другие контроллеры
 abstract class BaseController
 {
 
+    // трейт с базовыми методами
     use \core\base\controllers\BaseMethods;
 
     // для шаблонов

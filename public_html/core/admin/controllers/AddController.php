@@ -8,7 +8,7 @@ use core\base\settings\Settings;
 
 
 // контроллер для добавление информации через админ панель
-class addController extends BaseAdmin
+class AddController extends BaseAdmin
 {
 
     // определение действия
@@ -35,12 +35,13 @@ class addController extends BaseAdmin
         // разбор колонок на блоки
         $this->createOutputData();
 
-        $this->data = [
-          'name' => 'masa',
-          'keywords' => 'Ключевики',
-            'img' => '1.png',
-            'gallery_img' => json_encode(['2.png', '3.png', '4.png'])
-        ];
+
+//        $this->data = [
+//          'name' => 'masa',
+//          'keywords' => 'Ключевики',
+//            'img' => '1.png',
+//            'gallery_img' => json_encode(['2.png', '3.png', '4.png'])
+//        ];
 
     }
 

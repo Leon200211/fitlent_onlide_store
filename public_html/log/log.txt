@@ -166,3 +166,7 @@ Fault: 07-01-2023 13:10:49 - Не верное имя файла для подк
 file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\settings\internal_settings.php
  In line38
 
+Fault: 12-01-2023 12:10:13 - Отсутствует шаблон - core/admin/views/edit
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\controllers\BaseController.php
+ In line121
+

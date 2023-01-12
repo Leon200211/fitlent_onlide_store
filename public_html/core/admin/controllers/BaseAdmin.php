@@ -8,6 +8,7 @@ use core\base\controllers\BaseController;
 use core\base\exceptions\RouteException;
 use core\base\settings\Settings;
 use Couchbase\PasswordAuthenticator;
+use libraries\FileEdit;
 
 
 require_once $_SERVER['DOCUMENT_ROOT'] . PATH . 'libraries/functions.php';
@@ -500,11 +501,6 @@ abstract class BaseAdmin extends BaseController
     }
 
 
-    // метод обработка файлов
-    protected function createFile(){
-
-    }
-
 
     // метод создание чпу/алиасов
     protected function createAlias($id = false){
@@ -591,6 +587,19 @@ abstract class BaseAdmin extends BaseController
         return false;
 
     }
+
+
+    // метод обработка файлов
+    protected function createFile(){
+
+        $fileEdit = new FileEdit();
+        $this->fileArray = $fileEdit->addFile();
+
+
+
+
+    }
+
 
 
     // метод для работы с позициями в меню

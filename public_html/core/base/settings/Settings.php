@@ -105,7 +105,7 @@ class Settings
 
     // массив полей для валидации
     private $validation = [
-        'name' => ['empty' => true, 'trim' => true],
+        'name' => ['empty' => true, 'trim' => true, 'count' => 100],
         'price' => ['int' => true],
         'login' => ['empty' => true, 'trim' => true],
         'password' => ['crypt' => true, 'empty' => true],

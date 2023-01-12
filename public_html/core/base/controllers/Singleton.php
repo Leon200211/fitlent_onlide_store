@@ -26,7 +26,7 @@ trait Singleton
         self::$_instance = new self;
 
 
-        // проверяем есть ли экземпляра метод connect, если есть, то вызываем его
+        // проверяем есть ли экземпляра метод connect, если есть, то вызываем его ( для работы с моделями )
         if(method_exists(self::$_instance, 'connect')){
             self::$_instance->connect();
         }
