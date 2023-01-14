@@ -5,8 +5,8 @@ defined('VG_ACCESS') or die('Access denied');
 
 
 // константы
-//const SITE_URL = 'http://fitlent.online.store';
-const SITE_URL = 'https://ya.ru/';
+const SITE_URL = 'http://fitlent.online.store';
+//const SITE_URL = 'http:/cpa.fvds.ru';
 
 const PATH = '/';
 

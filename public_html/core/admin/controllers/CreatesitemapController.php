@@ -24,7 +24,7 @@ class CreatesitemapController extends BaseAdmin
         'get' => []
     ];
 
-
+    protected $SITE_URL = 'http:/cpa.fvds.ru';
 
     protected function inputData(){
 
@@ -46,7 +46,7 @@ class CreatesitemapController extends BaseAdmin
 
 
         // начинаем парсить
-        $this->parsing(SITE_URL);
+        $this->parsing($this->SITE_URL);
 
 
         // строим карту сайта
@@ -64,12 +64,6 @@ class CreatesitemapController extends BaseAdmin
 
     // метод для парсинга сайта
     protected function  parsing($url, $index = 0){
-
-
-        // проверяем на конечный слеш в адресе сайта
-        if(mb_strlen(SITE_URL) + 1 === mb_strlen($url) and mb_strrpos($url, '/') === mb_strlen($url) - 1){
-            return;
-        }
 
 
         // инициализируем CURL
@@ -94,7 +88,7 @@ class CreatesitemapController extends BaseAdmin
         if(!preg_match('/Content-Type:\s+text\/html/uis', $out)){
 
             unset($this->linkArr[$index]);
-            $this->linkArr = array_values($this->linkArr);
+            $this->linkArr = array_values($this->linkArr);  // пересобираем ключи
 
             return;
 
@@ -116,12 +110,65 @@ class CreatesitemapController extends BaseAdmin
         }
 
 
+        // поиск ссылок
+        preg_match_all('/<a\s*?[^>]*?href\s*?=\s*?(["\'])(.+?)\1[^>]*?>/uis', $out, $links);
+        // если получили ссылки
+        if(isset($links[2])){
+
+            foreach ($links[2] as $link){
+
+                if($link ==='/' or $link === $this->SITE_URL . '/'){
+                    continue;
+                }
+
+                // проходим по исключающим расширениям
+                foreach ($this->fileArr as $ext){
+
+                    if($ext){
+
+                        $ext = addslashes($ext);
+                        $ext = str_replace('.', '\.', $ext);
+                        // если нашли ссылку на файл с расширение из списка
+                        if(preg_match('/' . $ext . '\s*?$/ui', $link)){
+                            continue 2;
+                        }
+
+                    }
+
+                }
+
+
+                // проверка на относительную ссылку
+                if(mb_strpos($link, '/') === 0){
+                    $link = $this->SITE_URL . $link;
+                }
+
+
+                // проверка на внесение этой ссылки в наш список
+                if(!in_array($link, $this->linkArr) and $link !== '#' and mb_strpos($link, $this->SITE_URL) === 0){
+                    // проверяем ссылку фильтром
+                    if($this->filter($link)){
+                        $this->linkArr[] = $link;
+
+                        // рекурсивно вызываем parsing, но уже для полученной ссылки, чтобы пройтись по всему сайту целиком
+                        $this->parsing($link, count($this->linkArr) - 1);
+
+                    }
+
+                }
+
+            }
+
+
+        }
 
     }
 
 
     // метод по фильтрации ссылок
     protected function filter($link){
+
+        return true;
 
     }
 
