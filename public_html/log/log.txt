@@ -170,3 +170,20 @@ Fault: 12-01-2023 12:10:13 - Отсутствует шаблон - core/admin/vi
 file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\controllers\BaseController.php
  In line121
 
+Fault: 14-01-2023 16:25:34 - Method core\admin\controllers\CreatesitemapController::request() does not exist
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\controllers\BaseController.php
+ In line56
+
+Fault: 14-01-2023 16:26:13 - Method core\admin\controllers\CreatesitemapController::request() does not exist
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\controllers\BaseController.php
+ In line56
+
+Fault: 14-01-2023 16:26:46 - Отсутствует библиотека CURL
+Fault: 14-01-2023 16:29:38 - Отсутствует библиотека CURL
+Fault: 14-01-2023 16:30:50 - Отсутствует библиотека CURL
+Fault: 14-01-2023 16:30:55 - Отсутствует библиотека CURL
+Fault: 14-01-2023 16:43:39 - Отсутствует библиотека CURL
+Fault: 14-01-2023 16:44:05 - Отсутствует библиотека CURL
+Fault: 14-01-2023 16:44:42 - Отсутствует библиотека CURL
+Fault: 14-01-2023 16:45:33 - Отсутствует библиотека CURL
+Fault: 14-01-2023 16:46:36 - Отсутствует библиотека CURL
