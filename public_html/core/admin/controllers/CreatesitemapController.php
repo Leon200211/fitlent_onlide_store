@@ -20,7 +20,7 @@ class CreatesitemapController extends BaseAdmin
     protected $fileArr = ['jpg', 'png', 'jpeg', 'gif', 'xls', 'xlsx', 'pdf', 'docx', 'mp4', 'mp3', 'mpeg'];
 
     protected $filterArr = [
-        'url' => [],
+        'url' => ['order'],
         'get' => []
     ];
 
@@ -167,6 +167,43 @@ class CreatesitemapController extends BaseAdmin
 
     // метод по фильтрации ссылок
     protected function filter($link){
+
+
+        if($this->filterArr){
+
+            foreach ($this->filterArr as $type => $values){
+
+                if($values){
+
+                    foreach ($values as $item){
+
+                        $item = mb_str_replace('/', '\/', addslashes($item));
+
+                        // если проверяем url
+                        if($type === 'url'){
+                            if(preg_match('/' . $item . '.*[\?|$ ]/ui', $link)){
+                                return false;
+                            }
+                        }
+
+                        // если проверяем get параметры
+                        if($type === 'get'){
+
+                            if(preg_match('/(\?|&amp;|=|&)' . $item . '(=|&amp;|&|$)/ui', $link)){
+                                return false;
+                            }
+
+                        }
+
+
+                    }
+
+                }
+
+            }
+
+        }
+
 
         return true;
 
