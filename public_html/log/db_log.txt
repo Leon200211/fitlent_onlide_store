@@ -323,3 +323,15 @@ Fault: 12-01-2023 13:15:43 - Ошибка в SQL запросе: INSERT INTO art
 file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
  In line48
 
+Fault: 23-01-2023 19:55:02 - Ошибка в SQL запросе: SELECT  FROM parsing_data     - 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'FROM parsing_data' at line 1
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line47
+
+Fault: 23-01-2023 19:58:31 - Ошибка в SQL запросе: SELECT  FROM parsing_data     - 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'FROM parsing_data' at line 1
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line47
+
+Fault: 23-01-2023 20:06:11 - Ошибка в SQL запросе: UPDATE parsing_data SET all_links='[]',temp_link='[]'  - 1054 Unknown column 'temp_link' in 'field list'
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line47
+

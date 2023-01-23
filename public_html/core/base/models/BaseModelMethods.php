@@ -19,8 +19,12 @@ abstract class BaseModelMethods
     // группировка всех полей для вывода и работы
     protected function createFields($set, $table = false){
         // проверка на существование полей
+        if(empty($set['fields'])){
+            return '*';
+        }
         $set['fields'] = (!empty($set['fields']) and is_array($set['fields']))
             ? $set['fields'] : '*';
+
 
         $table = ($table && !$set['no_concat']) ? $table . '.' : '';
 

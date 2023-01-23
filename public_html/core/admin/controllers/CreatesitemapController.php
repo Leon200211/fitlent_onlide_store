@@ -15,7 +15,11 @@ class CreatesitemapController extends BaseAdmin
 
     use BaseMethods;
 
-    protected $linkArr = [];  // массив с ссылками
+    protected $all_links = [];  // массив с ссылками
+    protected $temp_links = [];  // массив временных ссылок
+
+    protected $maxLinks = 5000;  // максимальное число ссылок, которые curl будет обрабатывать за раз
+
     protected $parsingLogFile = 'parsing_log.txt';
     protected $fileArr = ['jpg', 'png', 'jpeg', 'gif', 'xls', 'xlsx', 'pdf', 'docx', 'mp4', 'mp3', 'mpeg'];
 
@@ -26,29 +30,80 @@ class CreatesitemapController extends BaseAdmin
 
     protected $SITE_URL = 'http:/cpa.fvds.ru';
 
-    protected function inputData(){
+
+    protected function inputData($links_counter = 1){
 
         // если у нас не установлена библиотека curl
         if(!function_exists('curl_init')){
-            $this->writeLog('Отсутствует библиотека CURL');
-            $_SESSION['res']['answer'] = '<div class="error">Library CURL as absent. Creation of sitemap impossible!</div>';
-            $this->redirect();
+            $this->cancel(0, 'Отсутствует библиотека CURL', '', true);
         }
 
         // проверка на админа
         if(!$this->userId) $this->execBase();
 
+        // проверка на таблицу в БД
+        if(!$this->checkParsingTable()){
+            $this->cancel(0, 'Проблема с БД в таблице parsing_data', '', true);
+        }
+
         // снимает время ограничения работы скрипта
         set_time_limit(0);
 
-        // если на момент вызова файл с прошлыми логами остался, то удаляем его
-        if(file_exists($_SERVER['DOCUMENT_ROOT'] . PATH . 'log/' . $this->parsingLogFile)){
-            @unlink($_SERVER['DOCUMENT_ROOT'] . PATH . 'log/' . $this->parsingLogFile);
+
+        $reserve = $this->model->read('parsing_data')[0];
+        foreach ($reserve as $name => $item){
+            if($item) $this->$name = json_decode($item);
+                else $this->$name = [SITE_URL];
         }
 
+        //$this->temp_links = ['http:/cpa.fvds.ru'];
 
-        // начинаем парсить
-        $this->parsing($this->SITE_URL);
+        // макс число ссылок в зависимости от глубины рекурсии
+        $this->maxLinks = (int)$links_counter > 1 ? ceil($this->maxLinks / $links_counter) : $this->maxLinks;
+
+        // подсчет количества полученных ссылок
+        while ($this->temp_links){
+            $temp_links_count = count($this->temp_links);
+            $links = $this->temp_links;
+            $this->temp_links = [];
+
+            // проверяем на допустимое число ссылок за раз
+            if($temp_links_count > $this->maxLinks){
+                // array_chunk — Разбивает массив на части
+                $links = array_chunk($links, ceil($temp_links_count / $this->maxLinks));
+                $count_chunks = count($links);
+
+                for ($i = 0; $i < $count_chunks; $i++){
+                    $this->parsing($links[$i]);
+                    unset($links[$i]);
+
+                    // сохраняем данные, которые еще не прошли парсинг, на случай ошибки
+                    if($links){
+                        // Деструктурирующее присваивание – это специальный синтаксис,
+                        // который позволяет нам «распаковать» массивы или объекты в несколько переменных
+                        $this->model->update('parsing_data', [
+                            'fields' => [
+                                'all_links' => json_encode($this->all_links),
+                                'temp_links' => json_encode(array_merge(...$links))
+                            ]
+                        ]);
+                    }
+
+                }
+
+            }else{
+                $this->parsing($links[0]);
+            }
+
+            $this->model->update('parsing_data', [
+                'fields' => [
+                    'all_links' => json_encode($this->all_links),
+                    'temp_links' => json_encode($this->temp_links)
+                ]
+            ]);
+
+        }
+
 
 
         // строим карту сайта
@@ -76,7 +131,7 @@ class CreatesitemapController extends BaseAdmin
         curl_setopt($curl, CURLOPT_HEADER, true);  // ответы заголовков
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);  // следовать ли за редиректами
         curl_setopt($curl, CURLOPT_TIMEOUT, 120);  // время ожидания от сервера
-        curl_setopt($curl, CURLOPT_RANGE, 0 - 4194304);  // ограничиваем объем данных на загрузку ( 4 Mb)
+        curl_setopt($curl, CURLOPT_RANGE, 0 - 4194304);  // ограничиваем объем данных на загрузку (4 Mb)
 
 
         // отправка CURL запроса
@@ -89,8 +144,8 @@ class CreatesitemapController extends BaseAdmin
         // ищем заголовки
         if(!preg_match('/Content-Type:\s+text\/html/uis', $out)){
 
-            unset($this->linkArr[$index]);
-            $this->linkArr = array_values($this->linkArr);  // пересобираем ключи
+            unset($this->all_links[$index]);
+            $this->all_links = array_values($this->all_links);  // пересобираем ключи
 
             return;
 
@@ -100,10 +155,10 @@ class CreatesitemapController extends BaseAdmin
         // проверяем код ответа
         if(!preg_match('/HTTP\/\d\.?\d?\s+20\d/uis', $out)){
 
-            $this->writeLog('Не корректная сслыка при парсинге - ' . $url, $this->parsingLogFile);
+            $this->writeLog('Не корректная ссылка при парсинге - ' . $url, $this->parsingLogFile);
 
-            unset($this->linkArr[$index]);
-            $this->linkArr = array_values($this->linkArr);
+            unset($this->all_links[$index]);
+            $this->all_links = array_values($this->all_links);
 
             $_SESSION['res']['answer'] = '<div class="error">Incorrect link in parsing - ' . $url . '<br>Sitemap is created' . '</div>';
 
@@ -147,13 +202,13 @@ class CreatesitemapController extends BaseAdmin
 
 
                 // проверка на внесение этой ссылки в наш список
-                if(!in_array($link, $this->linkArr) and $link !== '#' and mb_strpos($link, $this->SITE_URL) === 0){
+                if(!in_array($link, $this->all_links) and $link !== '#' and mb_strpos($link, $this->SITE_URL) === 0){
                     // проверяем ссылку фильтром
                     if($this->filter($link)){
-                        $this->linkArr[] = $link;
+                        $this->all_links[] = $link;
 
                         // рекурсивно вызываем parsing, но уже для полученной ссылки, чтобы пройтись по всему сайту целиком
-                        $this->parsing($link, count($this->linkArr) - 1);
+                        $this->parsing($link, count($this->all_links) - 1);
 
                     }
 
@@ -163,6 +218,7 @@ class CreatesitemapController extends BaseAdmin
 
 
         }
+
 
     }
 
@@ -227,13 +283,44 @@ class CreatesitemapController extends BaseAdmin
 
             $query = 'CREATE TABLE parsing_data (all_links text, temp_links text)';
 
-            if(!$this->model->query($query, 'c') or
+            if(!$this->model->my_query($query, 'c') or
                 !$this->model->add('parsing_data', ['fields' => ['all_links' => '', 'temp_links' => '']])
             ){ return false; }
 
         }
 
         return true;
+
+    }
+
+
+    // метод для завершения скрипта
+    protected function cancel($success = 0, $message = '', $log_message = '', $exit = false){
+
+        $exitArr = [];
+
+        $exitArr['success'] = $success;
+        $exitArr['message'] = $message ?: 'ERROR PARSING';
+
+        $log_message = $log_message ?: $exitArr['message'];
+
+        // тип вывода сообщения пользователю
+        $class = 'success';
+
+        if(!$exitArr['success']){
+            // если на момент вызова файл с прошлыми логами остался, то удаляем его
+//            if(file_exists($_SERVER['DOCUMENT_ROOT'] . PATH . 'log/' . $this->parsingLogFile)){
+//                @unlink($_SERVER['DOCUMENT_ROOT'] . PATH . 'log/' . $this->parsingLogFile);
+//            }
+
+            $class = 'error';
+            $this->writeLog($log_message, 'parsing_log.txt');
+        }
+
+        if($exit){
+            $exitArr['message'] = '<div class="' . $class . '">' . $exitArr['message'] . '</div>';
+            exit(json_encode($exitArr));
+        }
 
     }
 
