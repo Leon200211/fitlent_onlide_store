@@ -18,6 +18,7 @@ trait BaseMethods
         }else{
             return trim(strip_tags($str));
         }
+
     }
 
 

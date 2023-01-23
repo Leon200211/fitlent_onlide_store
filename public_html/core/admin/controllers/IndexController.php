@@ -19,7 +19,6 @@ class IndexController extends BaseController
         $redirect = PATH . Settings::get('routes')['admin']['alias'] . '/show';
         $this->redirect($redirect);
 
-
     }
 
 }

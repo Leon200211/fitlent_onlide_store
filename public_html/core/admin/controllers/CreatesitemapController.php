@@ -35,6 +35,8 @@ class CreatesitemapController extends BaseAdmin
             $this->redirect();
         }
 
+        // проверка на админа
+        if(!$this->userId) $this->execBase();
 
         // снимает время ограничения работы скрипта
         set_time_limit(0);
@@ -63,7 +65,7 @@ class CreatesitemapController extends BaseAdmin
 
 
     // метод для парсинга сайта
-    protected function  parsing($url, $index = 0){
+    protected function parsing($url, $index = 0){
 
 
         // инициализируем CURL
@@ -129,7 +131,7 @@ class CreatesitemapController extends BaseAdmin
                         $ext = addslashes($ext);
                         $ext = str_replace('.', '\.', $ext);
                         // если нашли ссылку на файл с расширение из списка
-                        if(preg_match('/' . $ext . '\s*?$/ui', $link)){
+                        if(preg_match('/' . $ext . '\s*?$|\?[^\/]/ui', $link)){
                             continue 2;
                         }
 
@@ -181,7 +183,7 @@ class CreatesitemapController extends BaseAdmin
 
                         // если проверяем url
                         if($type === 'url'){
-                            if(preg_match('/' . $item . '.*[\?|$ ]/ui', $link)){
+                            if(preg_match('/^[^\?]*' . $item . '/ui', $link)){
                                 return false;
                             }
                         }
@@ -214,6 +216,26 @@ class CreatesitemapController extends BaseAdmin
 
     }
 
+
+    // метод для проверки наличия таблицы парсинга в БД
+    protected function checkParsingTable(){
+
+        $tables = $this->model->showTables();
+
+        // если в БД нет такой таблицы
+        if(!in_array('parsing_data', $tables)){
+
+            $query = 'CREATE TABLE parsing_data (all_links text, temp_links text)';
+
+            if(!$this->model->query($query, 'c') or
+                !$this->model->add('parsing_data', ['fields' => ['all_links' => '', 'temp_links' => '']])
+            ){ return false; }
+
+        }
+
+        return true;
+
+    }
 
 
 }

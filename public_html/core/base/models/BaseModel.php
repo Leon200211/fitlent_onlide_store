@@ -12,7 +12,6 @@ abstract class BaseModel extends BaseModelMethods
 {
 
 
-
     protected $db;
 
     protected function connect()

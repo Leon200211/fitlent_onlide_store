@@ -187,3 +187,7 @@ Fault: 14-01-2023 16:44:05 - Отсутствует библиотека CURL
 Fault: 14-01-2023 16:44:42 - Отсутствует библиотека CURL
 Fault: 14-01-2023 16:45:33 - Отсутствует библиотека CURL
 Fault: 14-01-2023 16:46:36 - Отсутствует библиотека CURL
+Fault: 22-01-2023 19:05:04 - Не верное имя файла для подключения - core/admin/controllers/ControllersController
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\settings\internal_settings.php
+ In line38
+

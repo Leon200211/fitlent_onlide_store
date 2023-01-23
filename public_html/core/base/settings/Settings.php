@@ -4,10 +4,11 @@
 namespace core\base\settings;
 
 
-// класс настроек
-// используется Паттерн проектирования Singleton (Одиночка)
 use core\base\controllers\Singleton;
 
+
+// класс настроек
+// используется Паттерн проектирования Singleton (Одиночка)
 class Settings
 {
 
