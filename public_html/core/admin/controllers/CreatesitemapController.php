@@ -316,7 +316,56 @@ class CreatesitemapController extends BaseAdmin
     }
 
 
+    // метод для создания карты сайта из ссылок
     protected function createSitemap(){
+
+        // Представляет все содержимое HTML- или XML-документа; служит корнем дерева документа.
+        $dom = new \domDocument('1.0', 'utf-8');
+        $dom->formatOutput = true;
+
+        // корневой элемент
+        $root = $dom->createElement('urlset');
+
+        // атрибуты коневого элемента
+        $root->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+        $root->setAttribute('xmlns:xls', 'http://w3.org/2001/XMLSchema-instance');
+        $root->setAttribute('xsi:schemaLocation', 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd');
+
+        $dom->appendChild($root);
+
+        $sxe = simplexml_import_dom($dom);
+
+        if($this->all_links){
+
+            // текущая дата в определенном формате
+            $date = new \DateTime();
+            $lastMod = $date->format('Y-m-d') . 'T' . $date->format('H:i:s+01:00');
+
+            foreach ($this->all_links as $item){
+
+                $elem = trim(mb_substr($item, mb_strlen(SITE_URL)), '/');
+                $elem = explode('/', $elem);
+
+                // приоритет обхода
+                $count = '0.' . (count($elem) - 1);
+                $priority = 1 - (float)$count;
+
+                if($priority == 1){
+                    $priority = '1.0';
+                }
+
+                // добавляем элементы
+                $urlMain = $sxe->addChild('url');
+                $urlMain->addChild('loc', htmlspecialchars($item));
+                $urlMain->addChild('lastmod', $lastMod);
+                $urlMain->addChild('changefreq', 'weekly');
+                $urlMain->addChild('priority', $priority);
+
+            }
+
+        }
+
+        $dom->save($_SERVER['DOCUMENT_ROOT'] . PATH . 'sitemap.xml');
 
     }
 
