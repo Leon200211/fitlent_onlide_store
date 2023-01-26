@@ -339,7 +339,8 @@ class CreatesitemapController extends BaseAdmin
 
             // текущая дата в определенном формате
             $date = new \DateTime();
-            $lastMod = $date->format('Y-m-d') . 'T' . $date->format('H:i:s+01:00');
+            //$lastMod = $date->format('Y-m-d') . 'T' . $date->format('H:i:s+01:00');
+            $lastMod = $date->format('c');
 
             foreach ($this->all_links as $item){
 

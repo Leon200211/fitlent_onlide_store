@@ -21,11 +21,10 @@ require_once 'core/base/settings/internal_settings.php';  // фундамент�
 
 use core\base\exceptions\RouteException;  // импортируем пространство имен для исключения
 use core\base\exceptions\DbException;  // импортируем пространство имен для исключения БД
-use core\base\controllers\RouteController;
-
+use \core\base\controllers\BaseRoute;  // роут контроллер
 
 try{
-    RouteController::getInstance()->route();
+    BaseRoute::routeDirection();
 }
 catch (RouteException $e){
     exit($e->getMessage());

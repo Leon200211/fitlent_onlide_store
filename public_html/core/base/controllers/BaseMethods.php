@@ -76,4 +76,23 @@ trait BaseMethods
     }
 
 
+    // метод для получения стилей
+    public function getStyles(){
+        if($this->styles){
+            foreach ($this->styles as $style){
+                echo '<link rel="stylesheet" href="' . $style . '">';
+            }
+        }
+    }
+
+    // метод для получения скриптов
+    public function getScripts(){
+        if($this->scripts){
+            foreach ($this->scripts as $script){
+                echo '<script src="' . $script . '"></script>';
+            }
+        }
+    }
+
+
 }
