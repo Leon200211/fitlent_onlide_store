@@ -28,7 +28,6 @@ class CreatesitemapController extends BaseAdmin
         'get' => []
     ];
 
-    protected $SITE_URL = 'http:/cpa.fvds.ru';
 
 
     protected function inputData($links_counter = 1){
@@ -104,7 +103,12 @@ class CreatesitemapController extends BaseAdmin
 
         }
 
-
+        $this->model->update('parsing_data', [
+            'fields' => [
+                'all_links' => '',
+                'temp_links' => ''
+            ]
+        ]);
 
         // строим карту сайта
         $this->createSitemap();
@@ -174,7 +178,7 @@ class CreatesitemapController extends BaseAdmin
 
             foreach ($links[2] as $link){
 
-                if($link ==='/' or $link === $this->SITE_URL . '/'){
+                if($link ==='/' or $link === SITE_URL . '/'){
                     continue;
                 }
 
@@ -186,7 +190,7 @@ class CreatesitemapController extends BaseAdmin
                         $ext = addslashes($ext);
                         $ext = str_replace('.', '\.', $ext);
                         // если нашли ссылку на файл с расширение из списка
-                        if(preg_match('/' . $ext . '\s*?$|\?[^\/]/ui', $link)){
+                        if(preg_match('/' . $ext . '(\s*?$|\?[^\/]*$)/ui', $link)){
                             continue 2;
                         }
 
@@ -197,12 +201,14 @@ class CreatesitemapController extends BaseAdmin
 
                 // проверка на относительную ссылку
                 if(mb_strpos($link, '/') === 0){
-                    $link = $this->SITE_URL . $link;
+                    $link = SITE_URL . $link;
                 }
 
+                // сохраняем ссылку на сайт, с экранированными точной и слешем
+                $site_url = mb_str_replace('.', '\.', mb_str_replace('/', '\/', SITE_URL));
 
                 // проверка на внесение этой ссылки в наш список
-                if(!in_array($link, $this->all_links) and $link !== '#' and mb_strpos($link, $this->SITE_URL) === 0){
+                if(!in_array($link, $this->all_links) and !preg_match('/^(' . $site_url . ')?\/?#[^\/]*?$/ui', $link) and mb_strpos($link, SITE_URL) === 0){
                     // проверяем ссылку фильтром
                     if($this->filter($link)){
                         $this->all_links[] = $link;
