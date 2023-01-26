@@ -91,7 +91,7 @@ class CreatesitemapController extends BaseAdmin
                 }
 
             }else{
-                $this->parsing($links[0]);
+                $this->parsing($links);
             }
 
             $this->model->update('parsing_data', [
@@ -124,18 +124,59 @@ class CreatesitemapController extends BaseAdmin
 
 
     // метод для парсинга сайта
-    protected function parsing($url, $index = 0){
+    protected function parsing($urls){
+
+        if(!$urls) return;
+        $urls = (array)$urls;
 
 
         // инициализируем CURL
-        $curl = curl_init();  // дескриптор
+        $curl = [];
+        $curlMulty = curl_multi_init();  // дескриптор
+        foreach ($urls as $i => $url){
 
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);  // получаем ответы
-        curl_setopt($curl, CURLOPT_HEADER, true);  // ответы заголовков
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);  // следовать ли за редиректами
-        curl_setopt($curl, CURLOPT_TIMEOUT, 120);  // время ожидания от сервера
-        curl_setopt($curl, CURLOPT_RANGE, 0 - 4194304);  // ограничиваем объем данных на загрузку (4 Mb)
+            $curl[$i] = curl_init();
+            curl_setopt($curl[$i], CURLOPT_URL, $url);
+            curl_setopt($curl[$i], CURLOPT_RETURNTRANSFER, true);  // получаем ответы
+            curl_setopt($curl[$i], CURLOPT_HEADER, true);  // ответы заголовков
+            curl_setopt($curl[$i], CURLOPT_FOLLOWLOCATION, true);  // следовать ли за редиректами
+            curl_setopt($curl[$i], CURLOPT_TIMEOUT, 120);  // время ожидания от сервера
+            curl_setopt($curl[$i], CURLOPT_RANGE, 0 - 4194304);  // ограничиваем объем данных на загрузку (4 Mb)
+            curl_setopt($curl[$i], CURLOPT_ENCODING, 'gzip,deflate');  // для разбора gzip сжатия страницы
+
+            curl_multi_add_handle($curlMulty, $curl[$i]);  // добавляем новый поток
+
+        }
+
+
+        do{
+            $status = curl_multi_exec($curlMulty, $active);
+            $info = curl_multi_info_read($curlMulty);
+
+            if(false !== $info){
+                if($info['result'] !== 0){
+
+                    $i = array_search($info['handle'], $curl);
+                    $error = curl_errno($curl[$i]);
+                    $message = curl_error($curl[$i]);
+                    $header = curl_getinfo($curl[$i]);
+
+                    // если возникла ошибка
+                    if($error != 0){
+                        $this->cancel(0, 'Error loading ' . $header['url'] .
+                            ' http code: ' . $header['http_code'] . ' error: ' . $error .
+                            ' message: ' . $message);
+                    }
+
+                }
+            }
+
+            if($status > 0){
+                $this->cancel(0, curl_multi_strerror($status));
+            }
+
+        }while($status === CURLM_CALL_MULTI_PERFORM || $active);
+
 
 
         // отправка CURL запроса
