@@ -196,3 +196,7 @@ Fault: 26-01-2023 15:42:52 - Не корректная ссылка при па�
 Fault: 26-01-2023 15:42:52 - Не корректная ссылка при парсинге - http:/cpa.fvds.ru/products/special-offer
 Fault: 26-01-2023 15:42:52 - Не корректная ссылка при парсинге - http:/cpa.fvds.ru/products/special-offer
 Fault: 26-01-2023 15:42:52 - Не корректная ссылка при парсинге - http:/cpa.fvds.ru/products/special-offer
+Fault: 26-01-2023 16:59:53 - Incorrect server code: http:/cpa.fvds.ru/products/special-offer
+Fault: 26-01-2023 16:59:54 - Incorrect server code: http:/cpa.fvds.ru/product/canvas
+Fault: 26-01-2023 17:03:50 - Incorrect server code: http:/cpa.fvds.ru/products/special-offer
+Fault: 26-01-2023 17:03:51 - Incorrect server code: http:/cpa.fvds.ru/product/canvas

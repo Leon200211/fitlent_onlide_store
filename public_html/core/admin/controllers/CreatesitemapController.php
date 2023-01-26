@@ -110,6 +110,15 @@ class CreatesitemapController extends BaseAdmin
             ]
         ]);
 
+
+        // очищаем массив
+        if($this->all_links){
+            foreach ($this->all_links as $key => $link){
+                if(!$this->filter($link)) unset($this->all_links[$key]);
+            }
+        }
+
+
         // строим карту сайта
         $this->createSitemap();
 
@@ -178,96 +187,88 @@ class CreatesitemapController extends BaseAdmin
         }while($status === CURLM_CALL_MULTI_PERFORM || $active);
 
 
-
-        // отправка CURL запроса
-        $out = curl_exec($curl);
-
-        // уничтожаем дескриптор
-        curl_close($curl);
-
-
-        // ищем заголовки
-        if(!preg_match('/Content-Type:\s+text\/html/uis', $out)){
-
-            unset($this->all_links[$index]);
-            $this->all_links = array_values($this->all_links);  // пересобираем ключи
-
-            return;
-
-        }
+        $result = [];
+        // получаем инфу от каждого дескриптора
+        foreach ($urls as $i => $url){
+            $result[$i] = curl_multi_getcontent($curl[$i]);
+            // удаляем дескриптор из потока
+            curl_multi_remove_handle($curlMulty, $curl[$i]);
+            // уничтожаем дескриптор
+            curl_close($curl[$i]);
 
 
-        // проверяем код ответа
-        if(!preg_match('/HTTP\/\d\.?\d?\s+20\d/uis', $out)){
-
-            $this->writeLog('Не корректная ссылка при парсинге - ' . $url, $this->parsingLogFile);
-
-            unset($this->all_links[$index]);
-            $this->all_links = array_values($this->all_links);
-
-            $_SESSION['res']['answer'] = '<div class="error">Incorrect link in parsing - ' . $url . '<br>Sitemap is created' . '</div>';
-
-            return;
-
-        }
-
-
-        // поиск ссылок
-        preg_match_all('/<a\s*?[^>]*?href\s*?=\s*?(["\'])(.+?)\1[^>]*?>/uis', $out, $links);
-        // если получили ссылки
-        if(isset($links[2])){
-
-            foreach ($links[2] as $link){
-
-                if($link ==='/' or $link === SITE_URL . '/'){
-                    continue;
-                }
-
-                // проходим по исключающим расширениям
-                foreach ($this->fileArr as $ext){
-
-                    if($ext){
-
-                        $ext = addslashes($ext);
-                        $ext = str_replace('.', '\.', $ext);
-                        // если нашли ссылку на файл с расширение из списка
-                        if(preg_match('/' . $ext . '(\s*?$|\?[^\/]*$)/ui', $link)){
-                            continue 2;
-                        }
-
-                    }
-
-                }
-
-
-                // проверка на относительную ссылку
-                if(mb_strpos($link, '/') === 0){
-                    $link = SITE_URL . $link;
-                }
-
-                // сохраняем ссылку на сайт, с экранированными точной и слешем
-                $site_url = mb_str_replace('.', '\.', mb_str_replace('/', '\/', SITE_URL));
-
-                // проверка на внесение этой ссылки в наш список
-                if(!in_array($link, $this->all_links) and !preg_match('/^(' . $site_url . ')?\/?#[^\/]*?$/ui', $link) and mb_strpos($link, SITE_URL) === 0){
-                    // проверяем ссылку фильтром
-                    if($this->filter($link)){
-                        $this->all_links[] = $link;
-
-                        // рекурсивно вызываем parsing, но уже для полученной ссылки, чтобы пройтись по всему сайту целиком
-                        $this->parsing($link, count($this->all_links) - 1);
-
-                    }
-
-                }
-
+            // ищем заголовки
+            if(!preg_match('/Content-Type:\s+text\/html/uis', $result[$i])){
+                $this->cancel(0, 'Incorrect content type: ' . $url);
+                continue;
             }
 
 
+            // проверяем код ответа
+            if(!preg_match('/HTTP\/\d\.?\d?\s+20\d/uis', $result[$i])){
+                $this->cancel(0, 'Incorrect server code: ' . $url);
+                continue;
+            }
+
+            $this->createLinks($result[$i]);
+
         }
 
+        curl_multi_close($curlMulty);
 
     }
+
+
+    // метод по сохранению ссылок
+    protected function createLinks($content){
+
+        if($content){
+            // поиск ссылок
+            preg_match_all('/<a\s*?[^>]*?href\s*?=\s*?(["\'])(.+?)\1[^>]*?>/uis', $content, $links);
+            // если получили ссылки
+            if(isset($links[2])){
+
+                foreach ($links[2] as $link){
+
+                    if($link ==='/' or $link === SITE_URL . '/'){
+                        continue;
+                    }
+
+                    // проходим по исключающим расширениям
+                    foreach ($this->fileArr as $ext){
+                        if($ext){
+                            $ext = addslashes($ext);
+                            $ext = str_replace('.', '\.', $ext);
+                            // если нашли ссылку на файл с расширение из списка
+                            if(preg_match('/' . $ext . '(\s*?$|\?[^\/]*$)/ui', $link)){
+                                continue 2;
+                            }
+                        }
+                    }
+
+
+                    // проверка на относительную ссылку
+                    if(mb_strpos($link, '/') === 0){
+                        $link = SITE_URL . $link;
+                    }
+
+                    // сохраняем ссылку на сайт, с экранированными точной и слешем
+                    $site_url = mb_str_replace('.', '\.', mb_str_replace('/', '\/', SITE_URL));
+
+                    // проверка на внесение этой ссылки в наш список
+                    if(!in_array($link, $this->all_links) and !preg_match('/^(' . $site_url . ')?\/?#[^\/]*?$/ui', $link) and mb_strpos($link, SITE_URL) === 0){
+                        $this->temp_links[] = $link;
+                        $this->all_links[] = $link;
+                    }
+
+                }
+
+
+            }
+        }
+
+    }
+
 
 
     // метод по фильтрации ссылок
