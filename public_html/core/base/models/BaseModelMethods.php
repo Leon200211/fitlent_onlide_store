@@ -39,6 +39,7 @@ abstract class BaseModelMethods
         return $fields;
     }
 
+
     // создание запроса для конструкции Where
     protected function createWhere($set, $table = false, $instruction = 'WHERE'){
 
@@ -135,6 +136,7 @@ abstract class BaseModelMethods
 
     }
 
+
     // создание join запроса
     protected function createJoin($set, $table, $new_where = false){
 
@@ -217,6 +219,7 @@ abstract class BaseModelMethods
         return compact('fields', 'join', 'where', 'tables');
 
     }
+
 
     // создание запроса сортировки
     protected function createOrder($set, $table = false){

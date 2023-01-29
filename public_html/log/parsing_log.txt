@@ -208,3 +208,9 @@ Fault: 26-01-2023 17:43:24 - Incorrect server code: http:/cpa.fvds.ru/products/s
 Fault: 26-01-2023 17:43:28 - Incorrect server code: http:/cpa.fvds.ru/product/canvas
 Fault: 26-01-2023 17:44:01 - Incorrect server code: http:/cpa.fvds.ru/products/special-offer
 Fault: 26-01-2023 17:44:02 - Incorrect server code: http:/cpa.fvds.ru/product/canvas
+Fault: 29-01-2023 20:32:06 - Incorrect server code: http:/cpa.fvds.ru/products/special-offer
+Fault: 29-01-2023 20:32:07 - Incorrect server code: http:/cpa.fvds.ru/product/canvas
+Fault: 29-01-2023 20:32:14 - Incorrect server code: http:/cpa.fvds.ru/products/special-offer
+Fault: 29-01-2023 20:32:15 - Incorrect server code: http:/cpa.fvds.ru/product/canvas
+Fault: 29-01-2023 20:32:38 - Incorrect server code: http:/cpa.fvds.ru/products/special-offer
+Fault: 29-01-2023 20:32:41 - Incorrect server code: http:/cpa.fvds.ru/product/canvas

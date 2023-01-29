@@ -23,6 +23,8 @@ use core\base\exceptions\RouteException;  // импортируем простр
 use core\base\exceptions\DbException;  // импортируем пространство имен для исключения БД
 use \core\base\controllers\BaseRoute;  // роут контроллер
 
+
+
 try{
     BaseRoute::routeDirection();
 }
