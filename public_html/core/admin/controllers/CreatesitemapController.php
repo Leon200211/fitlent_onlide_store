@@ -30,7 +30,9 @@ class CreatesitemapController extends BaseAdmin
 
 
 
-    protected function inputData($links_counter = 1){
+    public function inputData($links_counter = 1, $redirect = true){
+
+        $links_counter = $this->clearNum($links_counter);
 
         // если у нас не установлена библиотека curl
         if(!function_exists('curl_init')){
@@ -59,6 +61,7 @@ class CreatesitemapController extends BaseAdmin
 
         // макс число ссылок в зависимости от глубины рекурсии
         $this->maxLinks = (int)$links_counter > 1 ? ceil($this->maxLinks / $links_counter) : $this->maxLinks;
+
 
         // подсчет количества полученных ссылок
         while ($this->temp_links){
@@ -123,10 +126,17 @@ class CreatesitemapController extends BaseAdmin
         $this->createSitemap();
 
 
-        !$_SESSION['res']['answer'] && $_SESSION['res']['asnwer'] = '<div class="success">Sitemap is created!</div>';
+        if($redirect){
+            !$_SESSION['res']['answer'] && $_SESSION['res']['asnwer'] = '<div class="success">Sitemap is created!</div>';
 
-        // редиректим на страницу вызова
-        $this->redirect();
+            // редиректим на страницу вызова
+            $this->redirect();
+        }else{
+
+            $this->cancel(1, 'Sitemap is created! ' . count($this->all_links) . ' links', '', true);
+
+        }
+
 
     }
 

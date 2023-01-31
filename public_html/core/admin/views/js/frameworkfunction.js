@@ -16,13 +16,12 @@ const Ajax = (set) => {
 
     set.type = set.type.toUpperCase();
 
-
     let body = '';
 
-    if(typeof  set.data !== 'undefined' && set.data){
+    if(typeof set.data !== 'undefined' && set.data){
 
         for(let i in set.data){
-            body += '&' + i + set.data[i];
+            body += '&' + i + "=" + set.data[i];
         }
 
         body = body.substr(1);
@@ -37,10 +36,8 @@ const Ajax = (set) => {
     }
 
     if(set.type === 'GET'){
-
         set.url += '?' + body;
         body = null;
-
     }
 
     return new Promise((resolve, reject) => {
@@ -65,6 +62,7 @@ const Ajax = (set) => {
 
         if(!contentType) xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
 
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
         xhr.onload = function (){
 
