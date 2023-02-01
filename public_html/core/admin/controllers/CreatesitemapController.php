@@ -17,6 +17,7 @@ class CreatesitemapController extends BaseAdmin
 
     protected $all_links = [];  // массив с ссылками
     protected $temp_links = [];  // массив временных ссылок
+    protected $bad_links = [];  // массив плохих ссылок
 
     protected $maxLinks = 5000;  // максимальное число ссылок, которые curl будет обрабатывать за раз
 
@@ -52,9 +53,14 @@ class CreatesitemapController extends BaseAdmin
 
 
         $reserve = $this->model->read('parsing_data')[0];
+        $table_rows = [];
         foreach ($reserve as $name => $item){
+
+            $table_rows[$name] = '';
+
             if($item) $this->$name = json_decode($item);
-                else $this->$name = [SITE_URL];
+                elseif($name === 'all_links' || $name === 'temp_links') $this->$name = [SITE_URL];
+
         }
 
         //$this->temp_links = ['http:/cpa.fvds.ru'];
@@ -81,13 +87,23 @@ class CreatesitemapController extends BaseAdmin
 
                     // сохраняем данные, которые еще не прошли парсинг, на случай ошибки
                     if($links){
+
+
                         // Деструктурирующее присваивание – это специальный синтаксис,
                         // который позволяет нам «распаковать» массивы или объекты в несколько переменных
+                        foreach ($table_rows as $name => $item){
+
+                            if($name === 'temp_links'){
+                                $table_rows[$name] = json_encode(array_merge(...$links));
+                            }else{
+                                $table_rows[$name] = json_encode($this->$name);
+                            }
+
+                        }
+
+
                         $this->model->update('parsing_data', [
-                            'fields' => [
-                                'all_links' => json_encode($this->all_links),
-                                'temp_links' => json_encode(array_merge(...$links))
-                            ]
+                            'fields' => $table_rows
                         ]);
                     }
 
@@ -97,27 +113,36 @@ class CreatesitemapController extends BaseAdmin
                 $this->parsing($links);
             }
 
+            // Деструктурирующее присваивание – это специальный синтаксис,
+            // который позволяет нам «распаковать» массивы или объекты в несколько переменных
+            foreach ($table_rows as $name => $item){
+                $table_rows[$name] = json_encode($this->$name);
+            }
+
             $this->model->update('parsing_data', [
-                'fields' => [
-                    'all_links' => json_encode($this->all_links),
-                    'temp_links' => json_encode($this->temp_links)
-                ]
+                'fields' => $table_rows
             ]);
 
         }
 
+
+        foreach ($table_rows as $name => $item){
+            $table_rows[$name] = '';
+        }
+
         $this->model->update('parsing_data', [
-            'fields' => [
-                'all_links' => '',
-                'temp_links' => ''
-            ]
+            'fields' => $table_rows
         ]);
 
 
         // очищаем массив
         if($this->all_links){
             foreach ($this->all_links as $key => $link){
-                if(!$this->filter($link)) unset($this->all_links[$key]);
+                // если ссылка не соответствует фильтру
+                // если попала в массив битая ссылка
+                if(!$this->filter($link) || in_array($link, $this->bad_links)) unset($this->all_links[$key]);
+
+
             }
         }
 
@@ -209,6 +234,8 @@ class CreatesitemapController extends BaseAdmin
 
             // ищем заголовки
             if(!preg_match('/Content-Type:\s+text\/html/uis', $result[$i])){
+                $this->bad_links[] = $url;
+
                 $this->cancel(0, 'Incorrect content type: ' . $url);
                 continue;
             }
@@ -216,6 +243,8 @@ class CreatesitemapController extends BaseAdmin
 
             // проверяем код ответа
             if(!preg_match('/HTTP\/\d\.?\d?\s+20\d/uis', $result[$i])){
+                $this->bad_links[] = $url;
+
                 $this->cancel(0, 'Incorrect server code: ' . $url);
                 continue;
             }
@@ -266,9 +295,14 @@ class CreatesitemapController extends BaseAdmin
                     $site_url = mb_str_replace('.', '\.', mb_str_replace('/', '\/', SITE_URL));
 
                     // проверка на внесение этой ссылки в наш список
-                    if(!in_array($link, $this->all_links) and !preg_match('/^(' . $site_url . ')?\/?#[^\/]*?$/ui', $link) and mb_strpos($link, SITE_URL) === 0){
+                    if(!in_array($link, $this->bad_links) and
+                        !preg_match('/^(' . $site_url . ')?\/?#[^\/]*?$/ui', $link) and
+                        mb_strpos($link, SITE_URL) === 0 and
+                        !in_array($link, $this->all_links)){
+
                         $this->temp_links[] = $link;
                         $this->all_links[] = $link;
+
                     }
 
                 }
@@ -389,10 +423,10 @@ class CreatesitemapController extends BaseAdmin
         // если в БД нет такой таблицы
         if(!in_array('parsing_data', $tables)){
 
-            $query = 'CREATE TABLE parsing_data (all_links text, temp_links text)';
+            $query = 'CREATE TABLE parsing_data (all_links longtext, temp_links longtext, bad_links longtext)';
 
             if(!$this->model->my_query($query, 'c') or
-                !$this->model->add('parsing_data', ['fields' => ['all_links' => '', 'temp_links' => '']])
+                !$this->model->add('parsing_data', ['fields' => ['all_links' => '', 'temp_links' => '', 'bad_links' => '']])
             ){ return false; }
 
         }
