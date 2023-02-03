@@ -11,7 +11,13 @@ class IndexController extends BaseController{
 
     protected function inputData(){
 
-        $this->init();
+
+        $str = '12312312123123';
+
+        $en_str = \core\base\models\Crypt::getInstance()->encrypt($str);
+        $dec_str = \core\base\models\Crypt::getInstance()->decrypt($en_str);
+
+
         exit();
 
     }
