@@ -35,8 +35,7 @@ class Crypt
         $hmac = hash_hmac($this->hashAlgoritm, $cipherText, CRYPT_KEY, true);
 
         // модернизируем шифрование
-        $res = $this->cryptCombine();
-        //return base64_encode($iv . $hmac . $cipherText);
+        return $this->cryptCombine($cipherText, $iv, $hmac);
 
     }
 
@@ -44,24 +43,18 @@ class Crypt
      // метод для дешифрования
     public function decrypt($str){
 
-        $crypt_str = base64_decode($str);
-
         $ivlen = openssl_cipher_iv_length($this->cryptMethod);
 
-        // получаем вектор шифрования
-        $iv = substr($crypt_str, 0, $ivlen);
-
-        $hmac = substr($crypt_str, $ivlen, $this->hashLength);
-
-        $cipher_text = substr($crypt_str, $ivlen + $this->hashLength);
+        // модернизируем дешифрование
+        $crypt_data = $this->cryptUnCombine($str, $ivlen);
 
         // openssl_decrypt — Расшифровывает данные
-        $original_plaintext = openssl_decrypt($cipher_text, $this->cryptMethod, CRYPT_KEY, $options=OPENSSL_RAW_DATA, $iv);
+        $original_plaintext = openssl_decrypt($crypt_data['str'], $this->cryptMethod, CRYPT_KEY, $options=OPENSSL_RAW_DATA, $crypt_data['iv']);
 
-        $calcmac = hash_hmac($this->hashAlgoritm, $cipher_text, CRYPT_KEY, $as_binary=true);
+        $calcmac = hash_hmac($this->hashAlgoritm, $crypt_data['str'], CRYPT_KEY, $as_binary=true);
 
         // hash_equals — Сравнение строк, нечувствительное к атакам по времени
-        if(hash_equals($hmac, $calcmac)){
+        if(hash_equals($crypt_data['hmac'], $calcmac)){
             return $original_plaintext;
         }
 
@@ -77,7 +70,7 @@ class Crypt
         $new_str = '';
         $str_len = strlen($str);
 
-        $counter = (int)ceil(strlen(CRYPT_KEY) / ($str_len + strlen($hmac)));
+        $counter = (int)ceil(strlen(CRYPT_KEY) / ($str_len + $this->hashLength));
 
         $progress = 1;
 
@@ -112,6 +105,60 @@ class Crypt
         // добавляем hmac в центр строки
         $new_str_half = (int)ceil(strlen($new_str) / 2);
         $new_str = substr($new_str, 0, $new_str_half) . $hmac . $new_str = substr($new_str, $new_str_half);
+
+        return base64_encode($new_str);
+
+    }
+
+
+    // метод для модернизации дешифрования
+    protected function cryptUnCombine($str, $ivlen){
+
+        $crypt_data = [];
+
+        $str = base64_decode($str);
+
+        $hash_position = (int)ceil(strlen($str) / 2 - $this->hashLength / 2);
+
+        $crypt_data['hmac'] = substr($str, $hash_position, $this->hashLength);
+
+        $str = str_replace($crypt_data['hmac'], '', $str);
+
+        $counter = (int)ceil(strlen(CRYPT_KEY) / (strlen($str) - $ivlen + $this->hashLength));
+
+        // если короткая строка
+        if($counter >= strlen($str) - $ivlen){
+            $counter = 1;
+        }
+
+        $progress = 2;
+
+        $crypt_data['str'] = '';
+        $crypt_data['iv'] = '';
+
+        for($i = 0; $i < strlen($str); $i++){
+
+            if($ivlen + strlen($crypt_data['str']) < strlen($str)){
+
+                if($i === $counter){
+                    $crypt_data['iv'] .= substr($str, $counter, 1);
+                    $progress++;
+                    $counter += $progress;
+                }else{
+                    $crypt_data['str'] .= substr($str, $i, 1);
+                }
+
+            }else{
+                $crypt_data_len = strlen($crypt_data['str']);
+                $crypt_data['str'] .= substr($str, $i, strlen($str) - $ivlen - $crypt_data_len);
+                $crypt_data['iv'] .= substr($str, $i + (strlen($str) - $ivlen - $crypt_data_len));
+
+                break;
+            }
+
+        }
+
+        return $crypt_data;
 
     }
 
