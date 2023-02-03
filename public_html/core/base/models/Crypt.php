@@ -34,7 +34,9 @@ class Crypt
         // hash_hmac — Генерация хеш-кода на основе ключа, используя метод HMAC
         $hmac = hash_hmac($this->hashAlgoritm, $cipherText, CRYPT_KEY, true);
 
-        return base64_encode($iv . $hmac . $cipherText);
+        // модернизируем шифрование
+        $res = $this->cryptCombine();
+        //return base64_encode($iv . $hmac . $cipherText);
 
     }
 
@@ -67,6 +69,51 @@ class Crypt
 
     }
 
+
+
+    // метод модернизации системы шифрования
+    protected function cryptCombine($str, $iv, $hmac){
+
+        $new_str = '';
+        $str_len = strlen($str);
+
+        $counter = (int)ceil(strlen(CRYPT_KEY) / ($str_len + strlen($hmac)));
+
+        $progress = 1;
+
+        if($counter >= $str_len){
+            $counter = 1;
+        }
+
+
+        // проходимся по всей строке
+        for($i = 0; $i < $str_len; $i++){
+
+            if($counter < $str_len){
+                // если коретка дошла до нужной позиции, вставить подстроку
+                if($counter === $i){
+                    $new_str .= substr($iv, $progress - 1, 1);
+                    $progress++;
+                    $counter += $progress;
+                }
+            }else{
+                break;
+            }
+
+            // вставляем один символ из исходной строки
+            $new_str .= substr($str, $i, 1);
+
+        }
+
+        // Дополняем строку до полного размера
+        $new_str .= substr($str, $i);  // добавляем остатки строки
+        $new_str .= substr($iv, $progress - 1);  // добавляем остатки вектора шифрования
+
+        // добавляем hmac в центр строки
+        $new_str_half = (int)ceil(strlen($new_str) / 2);
+        $new_str = substr($new_str, 0, $new_str_half) . $hmac . $new_str = substr($new_str, $new_str_half);
+
+    }
 
 
 }
