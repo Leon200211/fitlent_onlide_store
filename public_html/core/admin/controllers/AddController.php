@@ -183,7 +183,6 @@ class AddController extends BaseAdmin
 
             // отработка полученных данных
             $menu_pos = $this->model->read($this->table, [
-               'fields' => ['COUNT(*) as count'],
                'where' => $where,
                'no_concat' => true
             ])[0]['count'] + 1;   // +1 потому что мы добавляем через сайт

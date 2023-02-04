@@ -156,8 +156,18 @@ abstract class BaseModel extends BaseModelMethods
 
         // запрос
         $query = "SELECT $fields FROM $table $join $where $order $limit";
+
         // Вызов базового метода обращения к БД
-        return $this->my_query($query, 'r');
+        $res = $this->my_query($query, 'r');
+
+        // проверяем на условие структурирования данных
+        if(isset($set['join_structure']) and $set['join_structure'] and $res){
+
+            $res = $this->joinStructure($res, $table);
+
+        }
+
+        return $res;
 
     }
 
@@ -240,7 +250,7 @@ abstract class BaseModel extends BaseModelMethods
 
     // функция для удаления записи из таблицы в Базе данных
     // метод может удалять с использованием группировки таблиц
-    final public function delete($table, $set){
+    final public function delete($table, $set = []){
 
         $table = trim($table);
 
@@ -310,21 +320,44 @@ abstract class BaseModel extends BaseModelMethods
 
     // метод возвращает список всех полей в таблице
     final public function showColumns($table){
-        $query = "SHOW COLUMNS FROM $table";
-        $res = $this->my_query($query);
-        
-        $columns = [];
-        if($res){
-            foreach ($res as $column) {
-                $columns[$column['Field']] = $column;
-                // если это первичный ключ
-                if($column['Key'] === 'PRI'){
-                    $columns['id_row'] = $column['Field'];
+
+        if(!isset($this->tableRows[$table]) || $this->tableRows[$table]){
+
+            $query = "SHOW COLUMNS FROM $table";
+            $res = $this->my_query($query);
+
+            $this->tableRows[$table] = [];
+            if($res){
+                foreach ($res as $row) {
+                    $this->tableRows[$table][$row['Field']] = $row;
+                    // если это первичный ключ
+                    if($row['Key'] === 'PRI'){
+
+                        if(!isset($this->tableRows[$table]['id_row'])){
+                            $this->tableRows[$table]['id_row'] = $row['Field'];
+                        }else{
+                            if(!isset($this->tableRows[$table]['multi_id_row'])){
+                                $this->tableRows[$table]['multi_id_row'][] = $this->tableRows[$table]['id_row'];
+                            }
+                            $this->tableRows[$table]['multi_id_row'][] = $row['Field'];
+                        }
+
+                    }
                 }
             }
+
         }
 
-        return $columns;
+        return $this->tableRows[$table];
+
+    }
+
+
+    // метод для структурирования данных
+    protected function joinStructure($res, $table){
+
+
+
     }
 
 

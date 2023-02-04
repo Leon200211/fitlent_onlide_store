@@ -23,7 +23,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="PhpDebugGeneral" break_at_first_line="true" listening_started="true" />
+  <component name="PhpDebugGeneral" break_at_first_line="true" />
   <component name="PhpServers">
     <servers>
       <server host="fitlent.online.store" id="71d3d014-a194-47c0-a312-c174a9ef08fe" name="fitlent.online.store" />
@@ -179,7 +179,8 @@
       <workItem from="1675174331441" duration="5655000" />
       <workItem from="1675231569637" duration="2352000" />
       <workItem from="1675333491490" duration="32000" />
-      <workItem from="1675430714225" duration="11023000" />
+      <workItem from="1675430714225" duration="11374000" />
+      <workItem from="1675505853048" duration="6992000" />
     </task>
     <servers />
   </component>

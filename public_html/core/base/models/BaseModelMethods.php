@@ -11,32 +11,85 @@ abstract class BaseModelMethods
     // массив встроенных функций в mySql
     protected $mySql_function = ['NOW()'];
 
+    protected $tableRows;
 
     // ===================================================
     // Для SELECT
     // ===================================================
 
     // группировка всех полей для вывода и работы
-    protected function createFields($set, $table = false){
+    protected function createFields($set, $table = false, $join = false){
         // проверка на существование полей
-        if(empty($set['fields'])){
-            return '*';
+//        if(empty($set['fields'])){
+//            return '*';
+//        }
+//        $set['fields'] = (!empty($set['fields']) and is_array($set['fields']))
+//            ? $set['fields'] : '*';
+
+
+        // проверяем нужно ли структурировать данные
+        $join_structure = false;
+        if($join || isset($set['join_structure']) && $set['join_structure'] && $table){
+            $join_structure = true;
+
+            $this->showColumns($table);
+
+            if(!isset($this->tableRows[$table]['multi_id_row'])){
+                $set['fields'] = [];
+            }
+
         }
-        $set['fields'] = (!empty($set['fields']) and is_array($set['fields']))
-            ? $set['fields'] : '*';
-
-
-        $table = ($table && !$set['no_concat']) ? $table . '.' : '';
 
         $fields = '';
 
-        foreach ($set['fields'] as $field){
-            $fields .= $table . $field . ',';
+        $concat_table = $table && !$set['concat'] ? $table . '.' : '';
+
+        if(!isset($set['fields']) || !is_array($set['fields']) || !$set['fields']){
+
+            if(!$join){
+                $fields = $concat_table . "*,";
+            }else{
+                foreach ($this->tableRows[$table] as $key => $item){
+                    if($key !== 'id_row' && $key !== 'multi_id_row'){
+                        $fields .= $concat_table . $key . ' as TABLE' . $table . 'TABLE_' . $key . ',';
+                    }
+                }
+            }
+
+        }else{
+
+            $id_field = false;
+
+            foreach ($set['fields'] as $field){
+
+                if($join_structure && !$id_field && $this->tableRows[$table] === $field){
+                    $id_field = true;
+                }
+
+                if($field){
+                    if($join && $join_structure && !preg_match('/\s+as\s+/i', $field)){
+                        $fields .= $concat_table . $field . ' as TABLE' . $table . 'TABLE_' . $field . ',';
+                    }else{
+                        $fields .= $concat_table . $field . ',';
+                    }
+                }
+
+            }
+
+            if(!$id_field && $join_structure){
+
+                if($join){
+                    $fields .= $concat_table . $this->tableRows[$table]['id_row'] . ' as TABLE' . $table . 'TABLE_' . $this->tableRows[$table]['id_row'] . ',';
+                }else{
+                    $fields .= $concat_table . $this->tableRows[$table]['id_row'] . ',';
+                }
+
+            }
+
         }
-        // обрезаем запятую
-        $fields = rtrim($fields, ',');
 
         return $fields;
+
     }
 
 
@@ -143,7 +196,7 @@ abstract class BaseModelMethods
         $fields = '';
         $join = '';
         $where = '';
-        $tables = '';
+
 
         if(isset($set['join'])){
 
@@ -196,7 +249,7 @@ abstract class BaseModelMethods
                     $join .= '.' . $join_fields[0] . '=' . $key . '.' . $join_fields[1];
 
                     $join_table = $key;
-                    $tables .= ", " . trim($join_table);
+
 
                     if($new_where){
                         if($item['where']){
@@ -207,7 +260,7 @@ abstract class BaseModelMethods
                         $group_condition = isset($item['group_condition']) ? strtoupper($item['group_condition']) : 'AND';
                     }
 
-                    $fields .= $this->createFields($item, $key);
+                    $fields .= $this->createFields($item, $key, $set['join_structure']);
                     $fields = ',' . $fields;
 
                     $where .= $this->createWhere($item, $key, $group_condition);
@@ -216,7 +269,7 @@ abstract class BaseModelMethods
             }
         }
 
-        return compact('fields', 'join', 'where', 'tables');
+        return compact('fields', 'join', 'where');
 
     }
 

@@ -335,3 +335,19 @@ Fault: 23-01-2023 20:06:11 - Ошибка в SQL запросе: UPDATE parsing_
 file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
  In line47
 
+Fault: 04-02-2023 15:16:44 - Ошибка в SQL запросе: SELECT articlesid as id,articlesname,articlesimg,articlesparent_id FROM articles   ORDER BY articles.parent_id ASC,articles.menu_position ASC  - 1054 Unknown column 'articlesid' in 'field list'
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line47
+
+Fault: 04-02-2023 15:17:18 - Ошибка в SQL запросе: SELECT articlesid as id,articlesname,articlesimg,articlesparent_id FROM articles   ORDER BY articles.parent_id ASC,articles.menu_position ASC  - 1054 Unknown column 'articlesid' in 'field list'
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line47
+
+Fault: 04-02-2023 15:17:25 - Ошибка в SQL запросе: SELECT articlesid as id,articlesname,articlesimg,articlesparent_id FROM articles   ORDER BY articles.parent_id ASC,articles.menu_position ASC  - 1054 Unknown column 'articlesid' in 'field list'
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line47
+
+Fault: 04-02-2023 15:30:25 - Ошибка в SQL запросе: SELECT articles.COUNT(*) as count FROM articles  WHERE `parent_id` IS NULL OR `parent_id` = 0   - 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '*) as count FROM articles  WHERE `parent_id` IS NULL OR `parent_id` = 0' at line 1
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line47
+
