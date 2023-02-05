@@ -490,7 +490,32 @@ abstract class BaseModelMethods
     }
 
 
+    // метод для создания псевдонимов таблиц
+    protected function createTableAlias($table){
 
+        $arr = [];
+
+        // если нашли пробелы в названии таблицы
+        if(preg_match('/\s+/i', $table)){
+
+            $table = preg_replace('/\s{2,}/i', ' ', $table);
+
+            $table_name = explode(' ', $table);
+
+            // имя таблицы
+            $arr['table'] = trim($table_name[0]);
+            // псевдоним таблицы
+            $arr['alias'] = trim($table_name[1]);
+
+        }else{
+
+            $arr['alias'] = $arr['table'] = $table;
+
+        }
+
+        return $arr;
+
+    }
 
 
 
