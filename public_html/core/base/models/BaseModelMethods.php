@@ -119,7 +119,8 @@ abstract class BaseModelMethods
     // создание запроса для конструкции Where
     protected function createWhere($set, $table = false, $instruction = 'WHERE'){
 
-        $table = ($table && !$set['no_concat']) ? $table . '.' : '';
+        $table = ($table && (!isset($set['no_concat']) || !$set['no_concat']))
+            ? $this->createTableAlias($table)['alias'] . '.' : '';
 
         $where = '';
 
@@ -235,6 +236,9 @@ abstract class BaseModelMethods
                     }
                 }
 
+                // таблица для join
+                $concatTable = $this->createTableAlias($key)['alias'];
+
                 if($join){
                     $join .= ' ';
                 }
@@ -252,6 +256,7 @@ abstract class BaseModelMethods
                         continue;
                     }
 
+                    // выбираем какой join использоваться
                     if(!$item['type']){
                         $join .= 'LEFT JOIN ';
                     }else{
@@ -260,16 +265,18 @@ abstract class BaseModelMethods
 
                     $join .= $key . ' ON ';
 
-
                     // проверка с какой таблицей стыковаться
                     if(@$item['on']['table']){
-                        $join .= $item['on']['table'];
+                        $join_temp_table = $item['on']['table'];
                     }else{
-                        $join .= $join_table;
+                        $join_temp_table = $join_table;
                     }
 
+                    // добавляем таблицу для join
+                    $join .= $this->createTableAlias($join_temp_table)['alias'];
+
                     // указания полей для стыковки
-                    $join .= '.' . $join_fields[0] . '=' . $key . '.' . $join_fields[1];
+                    $join .= '.' . $join_fields[0] . '=' . $concatTable . '.' . $join_fields[1];
 
                     $join_table = $key;
 
@@ -300,13 +307,17 @@ abstract class BaseModelMethods
     // создание запроса сортировки
     protected function createOrder($set, $table = false){
 
-        $table = ($table && !$set['no_concat']) ? $table . '.' : '';
+        $table = ($table && (!isset($set['no_concat']) || !$set['no_concat']))
+            ? $this->createTableAlias($table)['alias'] . '.' : '';
 
         $order_by = '';
-        if(!empty($set['order']) and is_array($set['order'])){
+        if(isset($set['order']) and $set['order']){
 
-            $set['order_direction'] = (!empty($set['order_direction']) and is_array($set['order_direction']))
-                ? $set['order_direction'] : ['ASC'];
+            // если пришла строка, преобразуем в массив для корректного выполнения скрипта
+            $set['order'] = (array)$set['order'];
+
+            $set['order_direction'] = (isset($set['order_direction']) and $set['order_direction'])
+                ? (array)$set['order_direction'] : ['ASC'];
 
             $order_by = 'ORDER BY ';
             $direct_count = 0;
@@ -318,6 +329,13 @@ abstract class BaseModelMethods
                 }else{
                     $order_direction = strtoupper($set['order_direction'][$direct_count-1]);
                 }
+
+                // если отсортировать нужно используя встроенные функции MySQL
+                if(in_array($order, $this->mySql_function)){
+                    $order_by .= $order . ',';
+                }
+
+                // сортировка по числовым данным
                 if(is_int($order)){
                     $order_by .= $order . ' ' . $order_direction . ',';
                 }else{
@@ -501,6 +519,66 @@ abstract class BaseModelMethods
         }
 
         return rtrim($update, ',');
+
+    }
+
+
+    // метод для структурирования данных
+    protected function joinStructure($res, $table){
+
+        $join_arr = [];
+
+        $id_row = $this->tableRows[$this->createTableAlias($table)['alias']]['id_row'];
+
+
+        foreach ($res as $value) {
+            if($value){
+
+                if(!isset($join_arr[$value[$id_row]])){
+                    $join_arr[$value[$id_row]] = [];
+                }
+
+                foreach ($value as $key => $item){
+
+                    // заполняем результирующий массив
+                    if(preg_match('/TABLE(.+)?TABLE/u', $key, $matches)){
+                        // получаем нормализованное имя таблицы
+                        $table_name_normal = $matches[1];
+
+                        // сохраняем первичный ключ таблицы, если он не является мультиключом
+                        if(!isset($this->tableRows[$table_name_normal]['multi_id_row'])){
+                            $join_id_row = $value[$matches[0] . '_' . $this->tableRows[$table_name_normal]['id_row']];
+                        }else {
+
+                            $join_id_row = '';
+
+                            foreach ($this->tableRows[$table_name_normal]['multi_id_row'] as $multi){
+                                $join_id_row .= $value[$matches[0] . '_' . $multi];
+                            }
+
+                        }
+
+                        // получаем чистый ключ
+                        $row = preg_replace('/TABLE(.+)TABLE_/u', '', $key);
+
+                        // проверяем на дубляж
+                        if($join_id_row && !isset($join_arr[$value[$id_row]]['join'][$table_name_normal][$join_id_row][$row])){
+                            $join_arr[$value[$id_row]]['join'][$table_name_normal][$join_id_row][$row] = $item;
+                        }
+
+                        continue;
+
+                    }
+
+                    // если работаем не с join таблицей
+                    $join_arr[$value[$id_row]][$key] = $item;
+
+                }
+
+            }
+        }
+
+        return $join_arr;
 
     }
 
