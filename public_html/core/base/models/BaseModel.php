@@ -321,7 +321,7 @@ abstract class BaseModel extends BaseModelMethods
     // метод возвращает список всех полей в таблице
     final public function showColumns($table){
 
-        if(!isset($this->tableRows[$table]) || $this->tableRows[$table]){
+        if(!isset($this->tableRows[$table]) || !$this->tableRows[$table]){
 
             $query = "SHOW COLUMNS FROM $table";
             $res = $this->my_query($query);
@@ -356,7 +356,59 @@ abstract class BaseModel extends BaseModelMethods
     // метод для структурирования данных
     protected function joinStructure($res, $table){
 
+        $join_arr = [];
 
+        $id_row = $this->tableRows[$table]['id_row'];
+
+
+        foreach ($res as $value) {
+            if($value){
+
+                if(!isset($join_arr[$value[$id_row]])){
+                    $join_arr[$value[$id_row]] = [];
+                }
+
+                foreach ($value as $key => $item){
+
+                    // заполняем результирующий массив
+                    if(preg_match('/TABLE(.+)?TABLE/u', $key, $matches)){
+                        // получаем нормализованное имя таблицы
+                        $table_name_normal = $matches[1];
+
+                        // сохраняем первичный ключ таблицы, если он не является мультиключом
+                        if(!isset($this->tableRows[$table_name_normal]['multi_id_row'])){
+                            $join_id_row = $value[$matches[0] . '_' . $this->tableRows[$table_name_normal]['id_row']];
+                        }else {
+
+                            $join_id_row = '';
+
+                            foreach ($this->tableRows[$table_name_normal]['multi_id_row'] as $multi){
+                                $join_id_row .= $value[$matches[0] . '_' . $multi];
+                            }
+
+                        }
+
+                        // получаем чистый ключ
+                        $row = preg_replace('/TABLE(.+)TABLE_/u', '', $key);
+
+                        // проверяем на дубляж
+                        if($join_id_row && !isset($join_arr[$value[$id_row]]['join'][$table_name_normal][$join_id_row][$row])){
+                            $join_arr[$value[$id_row]]['join'][$table_name_normal][$join_id_row][$row] = $item;
+                        }
+
+                        continue;
+
+                    }
+
+                    // если работаем не с join таблицей
+                    $join_arr[$value[$id_row]][$key] = $item;
+
+                }
+
+            }
+        }
+
+        return $join_arr;
 
     }
 

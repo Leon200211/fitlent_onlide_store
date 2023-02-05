@@ -29,7 +29,7 @@ abstract class BaseModelMethods
 
         // проверяем нужно ли структурировать данные
         $join_structure = false;
-        if($join || isset($set['join_structure']) && $set['join_structure'] && $table){
+        if(($join || isset($set['join_structure'])) && $set['join_structure'] && $table){
             $join_structure = true;
 
             $this->showColumns($table);
@@ -67,11 +67,19 @@ abstract class BaseModelMethods
                 }
 
                 if($field){
-                    if($join && $join_structure && !preg_match('/\s+as\s+/i', $field)){
-                        $fields .= $concat_table . $field . ' as TABLE' . $table . 'TABLE_' . $field . ',';
+
+                    if($join && $join_structure){
+
+                        if(preg_match('/^(.+)?\s+as\s+(.+)/i', $field, $matches)){
+                            $fields .= $concat_table . $matches[1] . ' as TABLE' . $table . 'TABLE_' . $matches[2] . ',';
+                        }else{
+                            $fields .= $concat_table . $field . ' as TABLE' . $table . 'TABLE_' . $field . ',';
+                        }
+
                     }else{
                         $fields .= $concat_table . $field . ',';
                     }
+
                 }
 
             }

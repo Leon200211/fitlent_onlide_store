@@ -351,3 +351,7 @@ Fault: 04-02-2023 15:30:25 - Ошибка в SQL запросе: SELECT articles
 file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
  In line47
 
+Fault: 04-02-2023 15:35:20 - Ошибка в SQL запросе: SELECT articles.COUNT(*) as count FROM articles  WHERE `parent_id` IS NULL OR `parent_id` = 0   - 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '*) as count FROM articles  WHERE `parent_id` IS NULL OR `parent_id` = 0' at line 1
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line47
+
