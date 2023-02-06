@@ -50,7 +50,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../fitlent_CMS/public_html" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
@@ -181,7 +181,10 @@
       <workItem from="1675333491490" duration="32000" />
       <workItem from="1675430714225" duration="11374000" />
       <workItem from="1675505853048" duration="7914000" />
-      <workItem from="1675578486246" duration="6934000" />
+      <workItem from="1675578486246" duration="7280000" />
+      <workItem from="1675602669702" duration="596000" />
+      <workItem from="1675664390219" duration="22000" />
+      <workItem from="1675690570204" duration="4924000" />
     </task>
     <servers />
   </component>

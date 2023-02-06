@@ -55,24 +55,13 @@ class AddController extends BaseAdmin
             $this->foreignData[$arr['COLUMN_NAME']][0]['name'] = $rootItems['name'];
         }
 
-        // получаем все названия полей в таблице
-        $columns = $this->model->showColumns($arr['REFERENCED_TABLE_NAME']);
 
-        $name = '';
-        if($columns['name']){
-            $name = 'name';
-        }else{
 
-            foreach ($columns as $key => $column){
-                if(strpos($key, 'name') !== false){
-                    $name = $key . ' as name';
-                }
-            }
 
-            // если вообще не получили ни одного имени
-            if(!$name) $name = $columns['id_row'] . ' as name';
+        $orderData = $this->createOrderData($arr['REFERENCED_TABLE_NAME']);
 
-        }
+
+
 
         // если таблица ссылается сама на себя
         if($this->data){
@@ -84,9 +73,10 @@ class AddController extends BaseAdmin
 
         // получаем имя поля на которое ссылаемся из внешней таблицы
         $foreign = $this->model->read($arr['REFERENCED_TABLE_NAME'], [
-            'fields' => [$arr['REFERENCED_COLUMN_NAME'] . ' as id', $name],
+            'fields' => [$arr['REFERENCED_COLUMN_NAME'] . ' as id', $orderData['name'], $orderData['parent_id']],
             'where' => $where,
-            'operand' => $operand
+            'operand' => $operand,
+            'order' => $orderData['order'],
         ]);
 
         if($foreign){

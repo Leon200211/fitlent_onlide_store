@@ -74,6 +74,7 @@ class Settings
         'text' => ['name'],
         'textarea' => ['content', 'keywords'],
         'radio' => ['visible'],
+        'checkboxlist' => ['filters'],
         'select' => ['menu_position', 'parent_id'],
         'img' => ['img'],
         'gallery_img' => ['gallery_img']
@@ -84,6 +85,11 @@ class Settings
         'vg-rows' => [],
         'vg-img' => ['img', 'gallery_img'],
         'vg-content' => ['content']
+    ];
+
+    // для работы со связью n:m
+    private $manyToMany = [
+        'goods_filter' => ['goods', 'filters']  // 'type' => 'child' || 'root'
     ];
 
     // для перевода названия таблиц

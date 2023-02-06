@@ -26,6 +26,7 @@ abstract class BaseAdmin extends BaseController
     protected $adminPath;
 
     protected $messages;  // путь к служебным сообщениям
+    protected $settings;
 
     protected $menu;  // меню для админ панели
     protected $title;  // title для страницы
@@ -625,6 +626,62 @@ abstract class BaseAdmin extends BaseController
 
     }
 
+
+    //
+    protected function createOrderData($table){
+
+        // получаем все названия полей в таблице
+        $columns = $this->model->showColumns($table);
+
+        if(!$columns){
+            throw new RouteException('Отсутствуют поля в таблице ' . $table);
+        }
+
+        $name = '';
+        $order_name = '';
+        if($columns['name']){
+            $order_name = $name = 'name';
+        }else{
+
+            foreach ($columns as $key => $column){
+                if(strpos($key, 'name') !== false){
+                    $order_name = $key;
+                    $name = $key . ' as name';
+                }
+            }
+
+            // если вообще не получили ни одного имени
+            if(!$name) $name = $columns['id_row'] . ' as name';
+
+        }
+
+        $parent_id = '';
+        $order = [];
+
+        if($columns['parent_id']){
+            $order = $parent_id = 'parent_id';
+        }
+
+        if($columns['menu_position']){
+            $order[] = 'menu_position';
+        }else{
+            $order[] = $order_name;
+        }
+
+        return compact('name', 'parent_id', 'order', 'columns');
+
+    }
+
+
+    // метод многие ко многим
+    protected function createManyToMany($settings = false){
+
+        if(!$settings) $settings = $this->settings ?: Settings::getInstance();
+
+        $manyToMany = $settings::get('manyToMany');
+        $blocks = $settings::get('blockNeedle');
+
+    }
 
 
 
