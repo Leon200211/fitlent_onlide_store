@@ -89,7 +89,7 @@ class Settings
 
     // для работы со связью n:m
     private $manyToMany = [
-        'goods_filter' => ['goods', 'filters']  // 'type' => 'child' || 'root'
+        'goods_filters' => ['articles', 'teacher']  // 'type' => 'child' || 'root'
     ];
 
     // для перевода названия таблиц

@@ -35,6 +35,9 @@ class AddController extends BaseAdmin
         // разбор колонок на блоки
         $this->createOutputData();
 
+        // создаем связь
+        $this->createManyToMany();
+
 
 //        $this->data = [
 //          'name' => 'masa',
@@ -56,11 +59,7 @@ class AddController extends BaseAdmin
         }
 
 
-
-
         $orderData = $this->createOrderData($arr['REFERENCED_TABLE_NAME']);
-
-
 
 
         // если таблица ссылается сама на себя

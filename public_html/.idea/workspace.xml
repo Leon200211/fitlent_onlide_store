@@ -185,6 +185,8 @@
       <workItem from="1675602669702" duration="596000" />
       <workItem from="1675664390219" duration="22000" />
       <workItem from="1675690570204" duration="4924000" />
+      <workItem from="1675709859528" duration="19000" />
+      <workItem from="1675855363434" duration="5677000" />
     </task>
     <servers />
   </component>
@@ -204,15 +206,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/core/admin/views/include/form_templates/select.php</url>
-          <line>3</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="index.php">
         <watch expression="$_COOKIE" />

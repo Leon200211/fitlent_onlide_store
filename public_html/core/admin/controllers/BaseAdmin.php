@@ -659,7 +659,7 @@ abstract class BaseAdmin extends BaseController
         $order = [];
 
         if($columns['parent_id']){
-            $order = $parent_id = 'parent_id';
+            $order[] = $parent_id = 'parent_id';
         }
 
         if($columns['menu_position']){
@@ -680,6 +680,65 @@ abstract class BaseAdmin extends BaseController
 
         $manyToMany = $settings::get('manyToMany');
         $blocks = $settings::get('blockNeedle');
+
+        // если есть информация в свойстве
+        if($manyToMany){
+
+            foreach ($manyToMany as $mTable => $tables){
+
+                $targetKey = array_search($this->table, $tables);
+
+                if($targetKey !== false){
+
+                    $otherKey = $targetKey ? 0 : 1;
+                    $checkBoxList = $settings::get('templateArr')['checkboxlist'];
+
+                    if(!$checkBoxList || !in_array($tables[$otherKey], $checkBoxList)){
+                        continue;
+                    }
+
+                    if(!$this->translate[$tables[$otherKey]]){
+                        if($settings::get('projectTables')[$tables[$otherKey]]){
+                            $this->translate[$tables[$otherKey]] = [$settings::get('projectTables')[$tables[$otherKey]]['name']];
+                        }
+                    }
+
+                    $orderData = $this->createOrderData($tables[$otherKey]);
+
+                    $insert = false;
+                    if($blocks){
+                        foreach ($blocks as $key => $item){
+                            if(in_array($tables[$otherKey], $item)){
+                                $this->blocks[$key][] = $tables[$otherKey];
+                                $insert = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(!$insert) $this->blocks[array_keys($this->blocks)[0]][] = $tables[$otherKey];
+
+                    $foreign = [];
+
+                    if($this->data){
+                        $res = $this->model->get($mTable, [
+                            'fields' => [$tables[$otherKey] . '_' . $orderData['columns']],
+                            'where' => [$this->table . '_' . $this->columns['id_row'] = $this->data[$this->columns['id_row']]]
+                        ]);
+
+                        if($res){
+                            foreach ($res as $item){
+                                $foreign[] = $item[$tables[$otherKey] . '_' . $orderData['columns']['id_row']];
+                            }
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
 
     }
 
