@@ -74,7 +74,7 @@ class Settings
         'text' => ['name'],
         'textarea' => ['content', 'keywords'],
         'radio' => ['visible'],
-        'checkboxlist' => ['filters'],
+        'checkboxlist' => ['articles'],
         'select' => ['menu_position', 'parent_id'],
         'img' => ['img'],
         'gallery_img' => ['gallery_img']

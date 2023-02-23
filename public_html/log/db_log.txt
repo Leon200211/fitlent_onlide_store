@@ -375,3 +375,7 @@ Fault: 08-02-2023 15:49:43 - Ошибка в SQL запросе: SHOW COLUMNS FR
 file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
  In line47
 
+Fault: 23-02-2023 17:09:03 - Ошибка в SQL запросе: SELECT pages.*,,teacher.id as id,teacher.name FROM pages LEFT JOIN teacher ON pages.id=teacher.parent_id    - 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ',teacher.id as id,teacher.name FROM pages LEFT JOIN teacher ON pages.id=teacher.' at line 1
+file C:\OpenServer\domains\fitlent_online_store\public_html\core\base\models\BaseModel.php
+ In line47
+

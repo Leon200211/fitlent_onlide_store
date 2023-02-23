@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="10a89f0e-2d8f-4b5f-9e1f-a9214867cc4f" name="Default Changelist" comment="" />
+    <list default="true" id="10a89f0e-2d8f-4b5f-9e1f-a9214867cc4f" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/7f828439-0f28-4356-b744-691a130611e5.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/7f828439-0f28-4356-b744-691a130611e5.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -22,6 +26,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="PhpDebugGeneral" break_at_first_line="true" />
   <component name="PhpServers">
@@ -47,8 +54,6 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="vue.rearranger.settings.migration" value="true" />
@@ -61,6 +66,7 @@
       <recent name="C:\OpenServer\domains\fitlent_online_store\public_html\core\base\exceptions" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\OpenServer\domains\fitlent_online_store\public_html\core\admin\views\include\form_templates" />
       <recent name="C:\OpenServer\domains\fitlent_online_store\public_html\core\admin\views" />
     </key>
   </component>
@@ -188,7 +194,12 @@
       <workItem from="1675709859528" duration="19000" />
       <workItem from="1675855363434" duration="5748000" />
       <workItem from="1675937634682" duration="3792000" />
-      <workItem from="1676028941367" duration="1979000" />
+      <workItem from="1676028941367" duration="2800000" />
+      <workItem from="1676111643528" duration="521000" />
+      <workItem from="1676112177446" duration="515000" />
+      <workItem from="1676119764555" duration="84000" />
+      <workItem from="1676450476806" duration="260000" />
+      <workItem from="1677160479043" duration="2317000" />
     </task>
     <servers />
   </component>
