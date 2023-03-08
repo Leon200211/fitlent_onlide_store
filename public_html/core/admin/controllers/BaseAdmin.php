@@ -476,6 +476,10 @@ abstract class BaseAdmin extends BaseController
         }
 
 
+        // проверка на отношение многие ко многим
+       $this->checkManyToMany();
+
+
         // get_defined_vars — Возвращает массив всех определённых переменных
         $this->expansion(get_defined_vars());
 
@@ -890,6 +894,69 @@ abstract class BaseAdmin extends BaseController
                                     $this->data[$tables[$otherKey]][$tables[$otherKey]][] = $item['id'];
                                 }
                             }
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+    // метод для проверки отношения многие ко многим
+    protected function checkManyToMany($settings = false){
+
+        if(!$settings) $settings = $this->settings ?: Settings::getInstance();
+
+        $manyToMany = $settings::get('manyToMany');
+
+        if($manyToMany){
+
+            foreach ($manyToMany as $mTable => $tables){
+
+                $targetKey = array_search($this->table, $tables);
+
+                if($targetKey !== false){
+                    $otherKey = (int)!$targetKey;
+
+                    $checkboxlist = $settings::get('templateArr')['checkboxlist'];
+
+                    if(!$checkboxlist || !in_array($tables[$otherKey], $checkboxlist)) continue;
+
+                    $columns = $this->model->showColumns($tables[$otherKey]);
+
+                    $targetRow = $this->table . '_' . $this->columns['id_row'];
+                    $otherRow = $tables[$otherKey] . '_' . $columns['id_row'];
+
+                    $this->model->delete($mTable, [
+                       'where' => [$targetRow => $_POST[$this->columns['id_row']]]
+                    ]);
+
+                    if($_POST[$tables[$otherKey]]){
+                        $insertArr = [];
+                        $i = 0;
+
+                        foreach ($_POST[$tables[$otherKey]] as $value){
+                            foreach ($value as $item){
+
+                                if(isset($item)){
+                                    $insertArr[$i][$targetRow] = $_POST[$this->columns['id_row']];
+                                    $insertArr[$i][$otherRow] = $item;
+
+                                    $i++;
+                                }
+
+                            }
+                        }
+
+                        if($insertArr){
+                            $this->model->add($mTable, [
+                               'fields' => $insertArr
+                            ]);
                         }
 
                     }
